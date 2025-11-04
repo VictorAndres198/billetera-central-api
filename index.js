@@ -130,13 +130,32 @@ api.post('/v1/transfer', async (req, res) => {
   // 'req.participant' nos dice QUIÉN está enviando (ej. Khipu)
   const fromParticipant = req.participant;
   
-  const { fromIdentifier, toIdentifier, toAppName, monto, descripcion } = req.body;
+ const { fromIdentifier, toIdentifier, toAppName, monto, descripcion } = req.body;
   
-  if (!fromIdentifier || !toIdentifier || !toAppName || !monto || monto <= 0) {
-    return res.status(400).json({ success: false, message: "Faltan campos: fromIdentifier, toIdentifier, toAppName, monto (debe ser > 0)" });
+  // ✅ CÓDIGO CORREGIDO (con validación de decimales):
+  
+  // 1. Validación de campos faltantes y tipo
+  if (!fromIdentifier || !toIdentifier || !toAppName || !monto) {
+    return res.status(400).json({ success: false, message: "Faltan campos: fromIdentifier, toIdentifier, toAppName, monto" });
+  }
+  
+  // 2. Validación de monto (mayor a cero)
+  if (typeof monto !== 'number' || monto <= 0) {
+    return res.status(400).json({ success: false, message: "Monto inválido o debe ser mayor a cero." });
   }
 
-  const client = await pool.connect(); // Inicia una conexión
+  // 3. ¡LA VALIDACIÓN CLAVE!
+  // Multiplicamos por 100 (para convertir a centavos) y revisamos si tiene más decimales.
+  // (monto * 100) % 1 !== 0  significa que hay más de 2 decimales (ej: 0.001 * 100 = 0.1, y 0.1 % 1 = 0.1)
+  if ((monto * 100) % 1 !== 0) {
+     return res.status(400).json({ 
+       success: false, 
+       message: "Monto inválido. Solo se permiten hasta dos decimales." 
+     });
+  }
+  
+  // --- Si pasa todas las validaciones, la lógica continúa ---
+  const client = await pool.connect();
   
   try {
     // 1. Obtener el Participante (App) destino
