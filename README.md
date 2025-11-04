@@ -48,7 +48,7 @@ Es el "Directorio" que mapea usuarios a sus billeteras en diferentes apps.
 | Columna | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `wallet_uuid` (PK)| `uuid` | ID único para *esta entrada* del directorio. |
-| `user_identifier` | `varchar` | **ID Universal:** El teléfono o DNI (ej. "+51..."). |
+| `user_identifier` | `varchar` | **ID Universal:** El teléfono (ej. "+51..."). |
 | `internal_wallet_id`| `varchar` | **ID Interno:** El ID de ese usuario en la BD de *su app* (ej. UID de Firebase). |
 | `user_name` | `varchar` | Nombre del usuario (para mostrar en búsquedas). |
 | `participant_id` (FK)| `uuid` | Enlaza con la app (`participants.id`). |
