@@ -171,35 +171,52 @@ api.post('/v1/transfer', async (req, res) => {
       centralTransactionId: centralTxUUID // ID de auditoría
     };
 
-    // 5. ¡LA LLAMADA DE INTEROPERABILIDAD REAL!
-    console.log(`[INFO] Llamando a Webhook: ${toParticipant.webhook_url}`);
-    
+
+    // -----------------------------------------------------------
+    // ✅ ¡ESTA ES LA LÓGICA DE SIMULACIÓN QUE NECESITAS!
+    // -----------------------------------------------------------
     let respuestaDeDestino;
-    try {
-      const response = await fetch(toParticipant.webhook_url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Token': toParticipant.token // El API Central se autentica con el TOKEN del destino
-        },
-        body: JSON.stringify(jsonParaDestino),
-        timeout: 10000 // 10 segundos de timeout
-      });
+    
+    // Si la URL del webhook es la de placeholder, SIMULAMOS el éxito
+    if (toParticipant.webhook_url.includes('placeholder.com')) {
+      
+      console.log(`[INFO] SIMULANDO llamada a webhook (placeholder): ${toParticipant.webhook_url}`);
+      respuestaDeDestino = { success: true, localTransactionId: "tx_simulada_123" };
+    
+    } else {
+      // Si es un webhook real, intenta llamarlo
+      console.log(`[INFO] Llamando a Webhook REAL: ${toParticipant.webhook_url}`);
+      try {
+        const response = await fetch(toParticipant.webhook_url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Token': toParticipant.token // El API Central se autentica con el TOKEN del destino
+          },
+          body: JSON.stringify(jsonParaDestino),
+          timeout: 10000 // 10 segundos de timeout
+        });
 
-      if (!response.ok) {
-        throw new Error(`El webhook de ${toAppName} respondió con error: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`El webhook de ${toAppName} respondió con error: ${response.status}`);
+        }
+        respuestaDeDestino = await response.json(); // { success: true, localTransactionId: "..." }
+
+      } catch (e) {
+        // Si el webhook falla (timeout, 500, o ENOTFOUND como viste)
+        console.error("[ERROR] La llamada al webhook falló:", e.message);
+        // Marcar la transacción como FAILED
+        await client.query("UPDATE transactions_log SET status = 'FAILED' WHERE tx_uuid = $1", [centralTxUUID]);
+        // Lanza el error para que sea capturado por el catch principal
+        throw new Error(`Error contactando a ${toAppName}: ${e.message}`);
       }
-      respuestaDeDestino = await response.json(); // { success: true, localTransactionId: "..." }
-
-    } catch (e) {
-      // Si el webhook falla (timeout, 500, etc.)
-      console.error("[ERROR] La llamada al webhook falló:", e.message);
-      // Marcar la transacción como FAILED
-      await client.query("UPDATE transactions_log SET status = 'FAILED' WHERE tx_uuid = $1", [centralTxUUID]);
-      throw new Error(`Error contactando a ${toAppName}: ${e.message}`);
     }
+    // -----------------------------------------------------------
+    // FIN DE LA LÓGICA DE SIMULACIÓN/LLAMADA
+    // -----------------------------------------------------------
 
-    // 6. Si el otro backend dijo OK, marcamos la transacción como COMPLETED
+
+    // 6. Si el otro backend dijo OK (real o simulado), marcamos la transacción como COMPLETED
     if (respuestaDeDestino.success) {
       await client.query(
         "UPDATE transactions_log SET status = 'COMPLETED', destination_tx_id = $1 WHERE tx_uuid = $2",
@@ -219,7 +236,7 @@ api.post('/v1/transfer', async (req, res) => {
     }
 
   } catch (err) {
-    // Captura errores de SQL o de la lógica (ej. app no encontrada)
+    // Captura errores de SQL, de lógica, o el "throw" del fetch fallido
     console.error("[ERROR] en /v1/transfer:", err.message);
     res.status(400).json({ success: false, message: err.message });
   } finally {
