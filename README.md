@@ -48,7 +48,7 @@ Es el "Directorio" que mapea usuarios a sus billeteras en diferentes apps.
 | Columna | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `wallet_uuid` (PK)| `uuid` | ID único para *esta entrada* del directorio. |
-| `user_identifier` | `varchar` | **ID Universal:** El teléfono (ej. "+51..."). |
+| `user_identifier` | `varchar` | **ID Universal:** El teléfono (ej. "999..."). |
 | `internal_wallet_id`| `varchar` | **ID Interno:** El ID de ese usuario en la BD de *su app* (ej. UID de Firebase). |
 | `user_name` | `varchar` | Nombre del usuario (para mostrar en búsquedas). |
 | `participant_id` (FK)| `uuid` | Enlaza con la app (`participants.id`). |
@@ -68,7 +68,7 @@ Table participants {
 
 Table wallets {
   wallet_uuid uuid [pk, default: `gen_random_uuid()`]
-  user_identifier varchar(50) [not null] // ID Universal (ej: "+51999...")
+  user_identifier varchar(50) [not null] // ID Universal (ej: "999...")
   internal_wallet_id varchar(100) [not null] // ID de la BD de la app (ej. Firebase UID)
   user_name varchar(100) [not null]
   participant_id uuid [not null]
