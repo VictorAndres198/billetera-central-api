@@ -116,7 +116,7 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
 * **Body (JSON que envías):**
 ```
 {
-  "userIdentifier": "+51987654321",
+  "userIdentifier": "987654321",
   "internalWalletId": "uuid-de-tu-base-de-datos-del-usuario-registrado",
   "userName": "Nombre del Usuario"
 }
@@ -127,7 +127,7 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
   "success": true,
   "data": {
     "wallet_uuid": "...",
-    "user_identifier": "+51987654321",
+    "user_identifier": "987654321",
     "user_name": "Nombre del Usuario",
     "created_at": "..."
   }
@@ -141,7 +141,7 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
 
 * **Método:** `GET /api/v1/wallets/:identifier`
 
-* **Ejemplo:** `GET /api/v1/wallets/+51111222333`
+* **Ejemplo:** `GET /api/v1/wallets/111222333`
 
 * **Headers:** `X-API-Token: [Tu_Token_Secreto_de_Grupo]`
 
@@ -149,7 +149,7 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
 ```
 {
   "found": true,
-  "identifier": "+51111222333",
+  "identifier": "111222333",
   "wallets_disponibles": [
     { 
       "wallet_uuid": "uuid-de-khipu-para-ese-numero",
@@ -177,8 +177,8 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
 * **Body (JSON que envías):**
 ```
 {
-  "fromIdentifier": "+51999888777",
-  "toIdentifier": "+51111222333",
+  "fromIdentifier": "999888777",
+  "toIdentifier": "111222333",
   "toAppName": "BilleteraGrupoB",
   "monto": 10.50,
   "descripcion": "Pago de la cena"
