@@ -205,6 +205,7 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
 ```
 {
   "fromAppName": "Khipu",
+  "fromUserName": "Víctor (Khipu)",
   "internalWalletId": "sql_id_de_su_usuario_xyz",
   "monto": 10.50,
   "descripcion": "Pago de la cena",
