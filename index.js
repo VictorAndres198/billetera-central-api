@@ -166,11 +166,11 @@ api.post('/v1/transfer', async (req, res) => {
     const toParticipant = toParticipantResult.rows[0];
 
     // 2. Obtener el Wallet (Usuario) destino
-    const toWalletResult = await client.query("SELECT * FROM wallets WHERE user_identifier = $1 AND participant_id = $2", [toIdentifier, toParticipant.id]);
-    if (toWalletResult.rows.length === 0) {
-      throw new Error(`El usuario '${toIdentifier}' no está registrado en '${toAppName}'.`);
+    const fromWalletResult = await client.query("SELECT * FROM wallets WHERE user_identifier = $1 AND participant_id = $2", [fromIdentifier, fromParticipant.id]);
+    if (fromWalletResult.rows.length === 0) {
+      throw new Error(`Tu billetera de origen '${fromIdentifier}' no está registrada.`);
     }
-    const toWallet = toWalletResult.rows[0];
+    const fromWallet = fromWalletResult.rows[0];
 
     // 3. Crear el Log de Transacción (PENDING)
     const logQuery = `
@@ -184,6 +184,7 @@ api.post('/v1/transfer', async (req, res) => {
     // 4. Preparar JSON para el Webhook de la app destino
     const jsonParaDestino = {
       fromAppName: fromParticipant.app_name,
+      fromUserName: fromWallet.user_name,
       internalWalletId: toWallet.internal_wallet_id, // El ID que la app destino entiende
       monto: monto,
       descripcion: descripcion || "Transferencia",
