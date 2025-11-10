@@ -171,10 +171,14 @@ api.post('/v1/transfer', async (req, res) => {
       throw new Error(`El usuario destino '${toIdentifier}' no está registrado en '${toAppName}'.`);
     }
     const toWallet = toWalletResult.rows[0];
-    // 2.1 Obtener el Wallet (Usuario) ORIGEN 
+ // 3. Obtener el Wallet (Usuario) ORIGEN (¡Este es el que te faltaba!)
     const fromWalletResult = await client.query("SELECT * FROM wallets WHERE user_identifier = $1 AND participant_id = $2", [fromIdentifier, fromParticipant.id]);
-    
-    // 3. Crear el Log de Transacción (PENDING)
+    if (fromWalletResult.rows.length === 0) {
+      throw new Error(`Tu billetera de origen '${fromIdentifier}' no está registrada.`);
+    }
+    const fromWallet = fromWalletResult.rows[0];
+
+    // 4. Crear el Log de Transacción (PENDING)
     const logQuery = `
       INSERT INTO transactions_log (from_participant_id, to_participant_id, from_user_identifier, to_user_identifier, monto, status)
       VALUES ($1, $2, $3, $4, $5, 'PENDING')
@@ -183,7 +187,7 @@ api.post('/v1/transfer', async (req, res) => {
     const logResult = await client.query(logQuery, [fromParticipant.id, toParticipant.id, fromIdentifier, toIdentifier, monto]);
     const centralTxUUID = logResult.rows[0].tx_uuid;
 
-    // 4. Preparar JSON para el Webhook de la app destino
+    // 5. Preparar JSON para el Webhook de la app destino
     const jsonParaDestino = {
       fromAppName: fromParticipant.app_name,
       fromUserName: fromWallet.user_name,
