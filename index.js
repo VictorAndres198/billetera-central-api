@@ -165,13 +165,15 @@ api.post('/v1/transfer', async (req, res) => {
     }
     const toParticipant = toParticipantResult.rows[0];
 
-    // 2. Obtener el Wallet (Usuario) destino
-    const fromWalletResult = await client.query("SELECT * FROM wallets WHERE user_identifier = $1 AND participant_id = $2", [fromIdentifier, fromParticipant.id]);
-    if (fromWalletResult.rows.length === 0) {
-      throw new Error(`Tu billetera de origen '${fromIdentifier}' no está registrada.`);
+    // 2. Obtener el Wallet (Usuario) DESTINO
+    const toWalletResult = await client.query("SELECT * FROM wallets WHERE user_identifier = $1 AND participant_id = $2", [toIdentifier, toParticipant.id]);
+    if (toWalletResult.rows.length === 0) {
+      throw new Error(`El usuario destino '${toIdentifier}' no está registrado en '${toAppName}'.`);
     }
-    const fromWallet = fromWalletResult.rows[0];
-
+    const toWallet = toWalletResult.rows[0];
+    // 2.1 Obtener el Wallet (Usuario) ORIGEN 
+    const fromWalletResult = await client.query("SELECT * FROM wallets WHERE user_identifier = $1 AND participant_id = $2", [fromIdentifier, fromParticipant.id]);
+    
     // 3. Crear el Log de Transacción (PENDING)
     const logQuery = `
       INSERT INTO transactions_log (from_participant_id, to_participant_id, from_user_identifier, to_user_identifier, monto, status)
