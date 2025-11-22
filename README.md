@@ -181,7 +181,7 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
   "toIdentifier": "111222333",
   "toAppName": "BilleteraGrupoB",
   "monto": 10.50,
-  "descripcion": "Pago de la cena"
+  "descripcion": "Pago de la cena (esto es opcional)"
 }
 ```
 * **Respuesta (JSON que recibes):**
@@ -208,7 +208,7 @@ Estos son los endpoints que todas las aplicaciones deben consumir.
   "fromUserName": "Víctor (Khipu)",
   "internalWalletId": "sql_id_de_su_usuario_xyz",
   "monto": 10.50,
-  "descripcion": "Pago de la cena",
+  "descripcion": "Pago de la cena (esto es opcional)",
   "centralTransactionId": "tx-uuid-..."
 }
 ```
