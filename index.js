@@ -132,7 +132,6 @@ api.post('/v1/transfer', async (req, res) => {
   
  const { fromIdentifier, toIdentifier, toAppName, monto, descripcion } = req.body;
   
-  // ✅ CÓDIGO CORREGIDO (con validación de decimales):
   
   // 1. Validación de campos faltantes y tipo
   if (!fromIdentifier || !toIdentifier || !toAppName || !monto) {
@@ -144,9 +143,7 @@ api.post('/v1/transfer', async (req, res) => {
     return res.status(400).json({ success: false, message: "Monto inválido o debe ser mayor a cero." });
   }
 
-  // 3. ¡LA VALIDACIÓN CLAVE!
-  // Multiplicamos por 100 (para convertir a centavos) y revisamos si tiene más decimales.
-  // (monto * 100) % 1 !== 0  significa que hay más de 2 decimales (ej: 0.001 * 100 = 0.1, y 0.1 % 1 = 0.1)
+  // 3. ¡VALIDACIÓN CLAVE PARA SOLO TENER 2 DECIMALES!
   if ((monto * 100) % 1 !== 0) {
      return res.status(400).json({ 
        success: false, 
@@ -199,7 +196,7 @@ api.post('/v1/transfer', async (req, res) => {
 
 
     // -----------------------------------------------------------
-    // ✅ ¡ESTA ES LA LÓGICA DE SIMULACIÓN QUE NECESITAS!
+    // LA LÓGICA DE SIMULACIÓN
     // -----------------------------------------------------------
     let respuestaDeDestino;
     
